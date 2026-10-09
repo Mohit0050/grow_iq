@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#09090f" />
+  <title>GrowthIQ — Marketing ROI Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"]
+          },
+          colors: {
+            ink: "#09090f",
+            panel: "#11111b",
+            accent: "#9b8cff",
+            mint: "#66f2bc"
+          },
+          boxShadow: {
+            glow: "0 0 40px rgba(155,140,255,.12)"
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: "DM Sans", sans-serif; }
+    h1, h2, h3, .display { font-family: "Space Grotesk", sans-serif; }
+    .grid-bg {
+      background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, black, transparent 85%);
+    }
+    .glass { background: rgba(17,17,27,.83); backdrop-filter: blur(18px); }
+    .field {
+      width: 100%; border: 1px solid #2a2a3a; border-radius: 12px;
+      background: #0c0c14; color: #f4f4f5; padding: 13px 14px;
+      outline: none; transition: border-color .2s, box-shadow .2s;
+    }
+    .field:focus { border-color: #9b8cff; box-shadow: 0 0 0 3px rgba(155,140,255,.12); }
+    .field::-webkit-inner-spin-button { opacity: .5; }
+    .bar { transition: height .45s ease, width .45s ease; }
+    .toast { animation: slideIn .3s ease-out; }
+    @keyframes slideIn {
+      from { transform: translateY(12px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-ink text-zinc-100 antialiased selection:bg-violet-500/30">
+  <div class="fixed inset-0 grid-bg pointer-events-none"></div>
+  <div class="fixed -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[450px] rounded-full bg-violet-600/10 blur-[130px] pointer-events-none"></div>
+
+  <header class="relative border-b border-white/[0.07]">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8 h-[76px] flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3" aria-label="GrowthIQ home">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-400 to-indigo-600 flex items-center justify-center shadow-glow">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 17L9 12L12 15L20 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M15 6H20V11" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="display font-bold text-lg tracking-tight">Growth<span class="text-violet-400">IQ</span></span>
+      </a>
+      <div class="hidden sm:flex items-center gap-2 text-xs text-zinc-400 border border-white/10 rounded-full px-3 py-2">
+        <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
+        Free marketing toolkit
+      </div>
+      <a href="#audit" class="text-sm font-semibold bg-white text-zinc-950 rounded-lg px-4 py-2.5 hover:bg-violet-100 transition">
+        Get your audit <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="relative max-w-7xl mx-auto px-5 sm:px-8 pt-12 sm:pt-16 pb-20">
+    <section class="max-w-3xl mx-auto text-center mb-12">
+      <div class="inline-flex items-center gap-2 rounded-full border border-violet-400/20 bg-violet-400/[0.07] px-3 py-1.5 text-xs font-medium text-violet-300 mb-6">
+        <span>✳</span> THE GROWTH TOOLKIT
+      </div>
+      <h1 class="display text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1]">
+        Make every ad dollar
+        <span class="block mt-2 bg-gradient-to-r from-violet-300 via-fuchsia-300 to-emerald-300 bg-clip-text text-transparent">work harder.</span>
+      </h1>
+      <p class="text-zinc-400 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto mt-5">
+        See what your marketing budget could deliver. Forecast customers, revenue, and ROI in seconds — then turn the numbers into your next growth move.
+      </p>
+    </section>
+
+    <section aria-label="Marketing ROI calculator" class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      <!-- Inputs -->
+      <div class="lg:col-span-4 glass border border-white/[0.08] rounded-2xl p-6 sm:p-7 shadow-glow">
+        <div class="flex items-center justify-between mb-7">
+          <div>
+            <p class="text-xs uppercase tracking-[.16em] text-zinc-500 font-semibold">01 / Inputs</p>
+            <h2 class="display text-xl font-semibold mt-2">Your campaign</h2>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-white/[0.05] flex items-center justify-center text-xl" aria-hidden="true">⚙</div>
+        </div>
+
+        <form id="calculatorForm" class="space-y-6">
+          <div>
+            <label for="spend" class="block text-sm font-medium text-zinc-200 mb-2">Monthly ad spend</label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500">$</span>
+              <input class="field pl-8 pr-4 font-medium" id="spend" type="number" min="1" max="1000000000" step="100" value="10000" required inputmode="decimal" />
+            </div>
+            <p class="text-xs text-zinc-500 mt-2">Your monthly advertising budget.</p>
+          </div>
+
+          <div>
+            <label for="cpa" class="block text-sm font-medium text-zinc-200 mb-2">Target cost per acquisition</label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500">$</span>
+              <input class="field pl-8 pr-4 font-medium" id="cpa" type="number" min="0.01" max="1000000000" step="5" value="50" required inputmode="decimal" />
+            </div>
+            <p class="text-xs text-zinc-500 mt-2">What you expect to pay for each new customer.</p>
+          </div>
+
+          <div>
+            <label for="ltv" class="block text-sm font-medium text-zinc-200 mb-2">Customer lifetime value (LTV)</label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500">$</span>
+              <input class="field pl-8 pr-4 font-medium" id="ltv" type="number" min="0" max="1000000000" step="25" value="250" required inputmode="decimal" />
+            </div>
+            <p class="text-xs text-zinc-500 mt-2">Total expected revenue per customer over their lifetime.</p>
+          </div>
+
+          <button type="button" id="resetBtn" class="w-full border border-white/10 rounded-xl py-3 text-sm font-medium text-zinc-300 hover:bg-white/[0.05] transition">
+            ↺ &nbsp; Reset to example values
+          </button>
+        </form>
+
+        <div class="mt-6 pt-5 border-t border-white/[0.07] flex gap-3">
+          <span class="text-violet-300 text-lg" aria-hidden="true">ⓘ</span>
+          <p class="text-xs text-zinc-500 leading-relaxed">
+            Projections use your target CPA and LTV. Actual results vary with conversion rates, retention, margins, and attribution.
+          </p>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="lg:col-span-8 space-y-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <article class="glass border border-white/[0.08] rounded-2xl p-5 sm:p-6">
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-zinc-400">Projected new customers</p>
+              <span class="text-lg" aria-hidden="true">♙</span>
+            </div>
+            <p id="customers" class="display text-3xl sm:text-4xl font-semibold tracking-tight mt-5">200</p>
+            <p class="text-xs text-zinc-500 mt-2">Customers / month</p>
+          </article>
+
+          <article class="glass border border-white/[0.08] rounded-2xl p-5 sm:p-6">
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-zinc-400">Projected lifetime revenue</p>
+              <span class="text-lg" aria-hidden="true">↗</span>
+            </div>
+            <p id="revenue" class="display text-3xl sm:text-4xl font-semibold tracking-tight mt-5">$50,000</p>
+            <p class="text-xs text-zinc-500 mt-2">Based on customer LTV</p>
+          </article>
+
+          <article class="relative overflow-hidden sm:col-span-2 bg-gradient-to-br from-violet-600/20 via-indigo-600/10 to-emerald-500/[0.06] border border-violet-400/20 rounded-2xl p-6 sm:p-7">
+            <div class="absolute -right-12 -top-20 w-56 h-56 rounded-full bg-violet-500/10 blur-3xl pointer-events-none"></div>
+            <div class="relative flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
+              <div>
+                <div class="flex items-center gap-2 text-sm text-zinc-300">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  Estimated marketing ROI
+                </div>
+                <p id="roi" class="display text-5xl sm:text-6xl font-semibold tracking-tight mt-4 text-emerald-300">400%</p>
+                <p id="roiNote" class="text-sm text-zinc-400 mt-3">Every $1 in ad spend generates $5.00 in projected revenue.</p>
+              </div>
+              <div class="sm:text-right">
+                <p class="text-xs text-zinc-500 uppercase tracking-widest font-semibold">Projected net return</p>
+                <p id="profit" class="display text-2xl sm:text-3xl font-semibold mt-2">$40,000</p>
+                <p class="text-xs text-zinc-500 mt-1">Revenue minus ad spend</p>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Visualization -->
+        <article class="glass border border-white/[0.08] rounded-2xl p-6 sm:p-7">
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-7">
+            <div>
+              <p class="text-xs uppercase tracking-[.16em] text-zinc-500 font-semibold">02 / Performance</p>
+              <h2 class="display text-xl font-semibold mt-2">Spend vs. revenue</h2>
+              <p class="text-sm text-zinc-500 mt-1">Compare your investment with projected lifetime revenue.</p>
+            </div>
+            <span class="text-xs border border-white/10 rounded-full px-3 py-1.5 text-zinc-400 self-start">Live projection</span>
+          </div>
+
+          <div class="space-y-6" role="img" id="chartDescription" aria-label="Bar chart comparing ad spend and projected lifetime revenue">
+            <div>
+              <div class="flex justify-between items-center gap-4 mb-2">
+                <span class="text-sm text-zinc-300">Monthly ad spend</span>
+                <span id="spendLabel" class="text-sm font-semibold tabular-nums">$10,000</span>
+              </div>
+              <div class="h-3 bg-white/[0.06] rounded-full overflow-hidden">
+                <div id="spendBar" class="bar h-full rounded-full bg-violet-400" style="width:20%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between items-center gap-4 mb-2">
+                <span class="text-sm text-zinc-300">Projected lifetime revenue</span>
+                <span id="revenueLabel" class="text-sm font-semibold tabular-nums">$50,000</span>
+              </div>
+              <div class="h-3 bg-white/[0.06] rounded-full overflow-hidden">
+                <div id="revenueBar" class="bar h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-300" style="width:100%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-7 pt-5 border-t border-white/[0.07] grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-xs text-zinc-500">Revenue / ad dollar</p>
+              <p id="roas" class="display text-xl font-semibold mt-1">5.00x</p>
+              <p class="text-xs text-zinc-500 mt-1">Projected ROAS</p>
+            </div>
+            <div>
+              <p class="text-xs text-zinc-500">Acquisition efficiency</p>
+              <p id="ltvCpa" class="display text-xl font-semibold mt-1">5.00x</p>
+              <p class="text-xs text-zinc-500 mt-1">LTV-to-CPA ratio</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Lead capture -->
+    <section id="audit" class="mt-10 scroll-mt-8">
+      <div class="relative overflow-hidden rounded-3xl border border-violet-400/20 bg-gradient-to-br from-[#171427] via-[#11111b] to-[#0d1718] p-6 sm:p-10 lg:p-12">
+        <div class="absolute -right-20 -top-28 w-96 h-96 rounded-full bg-violet-600/10 blur-[90px] pointer-events-none"></div>
+        <div class="relative grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          <div>
+            <div class="inline-flex items-center gap-2 text-xs uppercase tracking-[.16em] text-emerald-300 font-semibold mb-5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              Your next growth move
+            </div>
+            <h2 class="display text-3xl sm:text-4xl font-semibold leading-tight tracking-tight">
+              Turn projections into
+              <span class="text-violet-300">a real growth plan.</span>
+            </h2>
+            <p class="text-zinc-400 mt-4 leading-relaxed max-w-lg">
+              Get a personalized Growth Audit Report with actionable ideas to improve acquisition efficiency, increase customer value, and make your marketing budget go further.
+            </p>
+            <div class="mt-6 space-y-3 text-sm text-zinc-300">
+              <div class="flex gap-3 items-center"><span class="text-emerald-300">✓</span> Acquisition and budget opportunities</div>
+              <div class="flex gap-3 items-center"><span class="text-emerald-300">✓</span> ROI and LTV growth recommendations</div>
+              <div class="flex gap-3 items-center"><span class="text-emerald-300">✓</span> Practical next steps for your team</div>
+            </div>
+          </div>
+
+          <div class="bg-black/20 border border-white/[0.08] rounded-2xl p-5 sm:p-7">
+            <h3 class="display text-xl font-semibold">Get Full Growth Audit Report</h3>
+            <p class="text-sm text-zinc-500 mt-2 mb-6">Enter your details to request your report.</p>
+
+            <form id="leadForm" class="space-y-4">
+              <div>
+                <label for="name" class="block text-sm font-medium mb-2">Full name</label>
+                <input class="field" id="name" name="name" type="text" autocomplete="name" placeholder="Jane Smith" maxlength="100" required />
+              </div>
+              <div>
+                <label for="email" class="block text-sm font-medium mb-2">Work email</label>
+                <input class="field" id="email" name="email" type="email" autocomplete="email" placeholder="jane@company.com" maxlength="254" required />
+              </div>
+              <button id="submitBtn" type="submit" class="w-full rounded-xl bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-400 hover:to-indigo-400 text-white font-semibold py-3.5 px-5 transition shadow-glow focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-2 focus:ring-offset-[#11111b]">
+                Get My Growth Audit <span aria-hidden="true">→</span>
+              </button>
+              <p class="text-xs text-zinc-500 text-center leading-relaxed">
+                By submitting, you agree to be contacted about your growth audit. This demo does not send data to a server.
+              </p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="mt-10 pt-6 border-t border-white/[0.07] flex flex-col sm:flex-row gap-3 justify-between text-xs text-zinc-600">
+      <p>© <span id="year"></span> GrowthIQ. Built for smarter marketing decisions.</p>
+      <p>Forecasts are illustrative and not a guarantee of results.</p>
+    </footer>
+  </main>
+
+  <!-- Accessible toast notifications -->
+  <div id="toast" role="status" aria-live="polite" aria-atomic="true"
+       class="fixed bottom-5 right-5 left-5 sm:left-auto sm:w-auto sm:max-w-md z-50 hidden">
+    <div id="toastContent" class="toast flex items-start gap-3 rounded-2xl border border-emerald-400/25 bg-[#141b1a] shadow-2xl px-5 py-4">
+      <span id="toastIcon" class="text-emerald-300 text-xl" aria-hidden="true">✓</span>
+      <div class="flex-1">
+        <p id="toastTitle" class="font-semibold text-sm">Success!</p>
+        <p id="toastMessage" class="text-xs text-zinc-400 mt-1 leading-relaxed">Your request was received.</p>
+      </div>
+      <button type="button" id="closeToast" class="text-zinc-500 hover:text-white p-1" aria-label="Dismiss notification">✕</button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const $ = (id) => document.getElementById(id);
+
+      const inputs = {
+        spend: $("spend"),
+        cpa: $("cpa"),
+        ltv: $("ltv")
+      };
+
+      const defaults = { spend: 10000, cpa: 50, ltv: 250 };
+      const money = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0
+      });
+      const preciseMoney = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      const number = new Intl.NumberFormat("en-US", {
+        maximumFractionDigits: 1
+      });
+
+      let toastTimer;
+
+      function formatMoney(value) {
+        return money.format(value);
+      }
+
+      function showToast(title, message, isError = false) {
+        clearTimeout(toastTimer);
+
+        $("toastTitle").textContent = title;
+        $("toastMessage").textContent = message;
+        $("toastIcon").textContent = isError ? "!" : "✓";
+        $("toastIcon").className = isError
+          ? "text-amber-300 text-xl"
+          : "text-emerald-300 text-xl";
+
+        $("toastContent").className =
+          "toast flex items-start gap-3 rounded-2xl border shadow-2xl px-5 py-4 " +
+          (isError
+            ? "border-amber-400/25 bg-[#201a12]"
+            : "border-emerald-400/25 bg-[#141b1a]");
+
+        $("toast").classList.remove("hidden");
+
+        toastTimer = setTimeout(() => {
+          $("toast").classList.add("hidden");
+        }, 5000);
+      }
+
+      function updateCalculator() {
+        const spend = Number(inputs.spend.value);
+        const cpa = Number(inputs.cpa.value);
+        const ltv = Number(inputs.ltv.value);
+
+        const valid =
+          inputs.spend.value !== "" &&
+          inputs.cpa.value !== "" &&
+          inputs.ltv.value !== "" &&
+          Number.isFinite(spend) &&
+          Number.isFinite(cpa) &&
+          Number.isFinite(ltv) &&
+          spend > 0 && spend <= 1e9 &&
+          cpa > 0 && cpa <= 1e9 &&
+          ltv >= 0 && ltv <= 1e9;
+
+        if (!valid) {
+          $("customers").textContent = "—";
+          $("revenue").textContent = "—";
+          $("roi").textContent = "—";
+          $("profit").textContent = "—";
+          $("roiNote").textContent = "Enter valid values to see your projections.";
+          $("roas").textContent = "—";
+          $("ltvCpa").textContent = "—";
+          $("spendLabel").textContent = "—";
+          $("revenueLabel").textContent = "—";
+          $("spendBar").style.width = "0%";
+          $("revenueBar").style.width = "0%";
+          return;
+        }
+
+        // Forecasts are based on target CPA and customer lifetime revenue.
+        const customers = spend / cpa;
+        const revenue = customers * ltv;
+        const profit = revenue - spend;
+        const roi = (profit / spend) * 100;
+        const roas = revenue / spend;
+        const ltvCpa = ltv / cpa;
+
+        $("customers").textContent = number.format(customers);
+        $("revenue").textContent = formatMoney(revenue);
+        $("profit").textContent = formatMoney(profit);
+        $("roi").textContent = (roi > 0 ? "+" : "") + number.format(roi) + "%";
+        $("roas").textContent = roas.toFixed(2) + "x";
+        $("ltvCpa").textContent = ltvCpa.toFixed(2) + "x";
+        $("spendLabel").textContent = formatMoney(spend);
+        $("revenueLabel").textContent = formatMoney(revenue);
+
+        $("roi").classList.toggle("text-emerald-300", roi >= 0);
+        $("roi").classList.toggle("text-rose-300", roi < 0);
+
+        if (roas > 0) {
+          $("roiNote").textContent =
+            "Every $1 in ad spend generates " +
+            preciseMoney.format(roas) + " in projected lifetime revenue.";
+        } else {
+          $("roiNote").textContent =
+            "No projected revenue at the current lifetime value.";
+        }
+
+        // Scale both bars relative to the larger value.
+        const maxValue = Math.max(spend, revenue, 1);
+        $("spendBar").style.width = (spend / maxValue * 100) + "%";
+        $("revenueBar").style.width = (revenue / maxValue * 100) + "%";
+
+        $("chartDescription").setAttribute(
+          "aria-label",
+          "Projected monthly ad spend " + formatMoney(spend) +
+          "; projected lifetime revenue " + formatMoney(revenue) + "."
+        );
+      }
+
+      Object.values(inputs).forEach((input) => {
+        input.addEventListener("input", updateCalculator);
+      });
+
+      $("resetBtn").addEventListener("click", () => {
+        inputs.spend.value = defaults.spend;
+        inputs.cpa.value = defaults.cpa;
+        inputs.ltv.value = defaults.ltv;
+        updateCalculator();
+        showToast("Calculator reset", "Example values have been restored.");
+      });
+
+      $("leadForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+        if (!form.reportValidity()) return;
+
+        const name = $("name").value.trim();
+        const email = $("email").value.trim();
+
+        if (!name || !email) {
+          showToast("Check your details", "Please enter your name and email.", true);
+          return;
+        }
+
+        // Mock attribution data for demonstration. Replace with real URL
+        // query parameters or analytics integration in production.
+        const params = new URLSearchParams(window.location.search);
+
+        const lead = {
+          name,
+          email,
+          submittedAt: new Date().toISOString(),
+          calculator: {
+            monthlyAdSpend: Number(inputs.spend.value),
+            targetCPA: Number(inputs.cpa.value),
+            customerLTV: Number(inputs.ltv.value)
+          },
+          projectedResults: {
+            newCustomers: Number(inputs.spend.value) / Number(inputs.cpa.value),
+            projectedLifetimeRevenue:
+              (Number(inputs.spend.value) / Number(inputs.cpa.value)) *
+              Number(inputs.ltv.value),
+            estimatedROI: (
+              (
+                (Number(inputs.spend.value) / Number(inputs.cpa.value)) *
+                Number(inputs.ltv.value) -
+                Number(inputs.spend.value)
+              ) / Number(inputs.spend.value)
+            ) * 100
+          },
+          utm: {
+            source: params.get("utm_source") || "website",
+            medium: params.get("utm_medium") || "organic",
+            campaign: params.get("utm_campaign") || "growth_audit",
+            term: params.get("utm_term") || "(not set)",
+            content: params.get("utm_content") || "(not set)"
+          }
+        };
+
+        // Demo only: this logs personal information in the browser console.
+        // Use a secure backend/CRM endpoint for real lead collection.
+        console.log("[GrowthIQ Demo] New growth audit lead:", lead);
+
+        form.reset();
+        showToast(
+          "You're on the list!",
+          "Your growth audit request was recorded in this demo. Check the browser console for the mock lead payload."
+        );
+      });
+
+      $("closeToast").addEventListener("click", () => {
+        clearTimeout(toastTimer);
+        $("toast").classList.add("hidden");
+      });
+
+      $("year").textContent = new Date().getFullYear();
+
+      updateCalculator();
+    })();
+  </script>
+</body>
+</html>
